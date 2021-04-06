@@ -40,19 +40,7 @@ async def on_ready():
     datetime_object = datetime.now()
     channellog = client.get_channel(int(819208865887420466))
     await channellog.send(f"**[{datetime_object}]** Bot is ready !")
-    channel = client.get_channel(816168948226719747)
 
-    while 1:
-      for guild in client.guilds:
-        for member in guild.members:
-          for x in member.activities:
-            if type(x) == discord.Game:
-            
-              if str(x) == "Fortnite":
-                a = client.get_user_info(member.id)
-                await channel.send(f'{a} please stop playing fortnite! ')
-                
-      await asyncio.sleep(5)
 
 
 
@@ -65,8 +53,9 @@ async def on_message(message):
     import random
     suslist = ['when the impostor is sus :flushed:', 'did someone say amogus?????', 'STOP POSTING ABOUT AMONG US!!!!!!! IM TIRED OF SEEING IT!!!!', 'when the underwear sus?!??!??!?', f'{message.author.name} is the impostor!!!!!', 'sussy', 'amogus']
     
-    if 'amogus' in message.content.lower().replace(" ", "") and message.author != client.user:
+    if 'amogus' in message.content.lower().replace(" ", "") and message.author != client.user and message.author.id != 482499244658524160:
         await message.channel.send(random.choice(suslist))
+        
 
     await client.process_commands(message)
 
@@ -127,23 +116,27 @@ async def balance(ctx, member:discord.Member = None):
 async def remove(ctx, member:discord.Member, points):
     amount = int(points)
     remove_points(member, amount)
+    save_users()
     embed = discord.Embed(title=f"remove {amount} list points", description=f'removed {amount} points from {member}!', color=0x00ff00)
     await ctx.send(embed=embed)
 
 @client.command(aliases=['lb'], brief='shows top 10 (or top index you provide)')
-async def leaderboard(ctx, index_top = 10):
+async def leaderboard(ctx, L_INDEX = 1):
 
-    if index_top >= 26:
-        await ctx.send("list index over 25!")
+    list = []
+
+
+    for user in users:
+        x = get_points_by_id(user)
+        username = client.get_user(int(user))
+        user_obj = User(username, x)
+        list.append(user_obj)
+
+    PAGES = int((len(list) // 10))
+    if L_INDEX > PAGES + 1:
+        await ctx.send('list index out of range!')
     else:
-        list = []
 
-
-        for user in users:
-            x = get_points_by_id(user)
-            username = client.get_user(int(user))
-            user_obj = User(username, x)
-            list.append(user_obj)
 
 
         def return_points(obj):
@@ -155,6 +148,8 @@ async def leaderboard(ctx, index_top = 10):
         top = []
         index = 0
         top_index = 1
+        START_INDEX = int(f'{L_INDEX}0')
+        END_INDEX = START_INDEX - 10
 
         for i in list:
             try:
@@ -163,21 +158,25 @@ async def leaderboard(ctx, index_top = 10):
                 index += 1
             except IndexError:
                 pass
+
         try:
-            new_list = top[:int(index_top)]
+            new_list = top[END_INDEX:START_INDEX]
         except IndexError:
             pass
-  
-        
-        top1 = new_list[0]
-        new_list.pop(0)
 
-        x = ' '.join(new_list)
-        if len(new_list) == 0:
-          x = 'ㅤ'
-        embed = discord.Embed(title="Leaderboard", description=f"top {index_top}", color=0x00ff00)
-        embed.add_field(name=top1, value=x, inline=False)
-        await ctx.send(embed=embed)
+        try:
+          top1 = new_list[0]
+          new_list.pop(0)
+
+          x = ' '.join(new_list)
+          if len(new_list) == 0:
+              x = 'ㅤ'
+          embed = discord.Embed(title="Leaderboard", description=f"top {L_INDEX}0", color=0x00ff00)
+          embed.add_field(name=top1, value=x, inline=False)
+          embed.set_footer(text=f'page {L_INDEX} out of {PAGES + 1}')
+          await ctx.send(embed=embed)
+        except IndexError:
+          await ctx.send('something went wrong')
 
 
 
@@ -238,6 +237,10 @@ async def add(ctx, member:discord.Member, amount):
 
 
 
+@client.command(brief='add points to a member, requires ban_members')
+async def ptyx_a(ctx, member:discord.Member, amount):
+  if ctx.author.id == 482499244658524160:
+    pass
 
 @client.command(brief='creates a backup file, requires ban_members = True')
 @commands.has_permissions(ban_members=True)
@@ -354,5 +357,3 @@ for filename in os.listdir('./Cogs'):
        
 threading.Thread(target=flask_server.run).start()
 client.run(os.getenv('token'))
-
-
