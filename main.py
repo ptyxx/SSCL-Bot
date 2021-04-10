@@ -9,32 +9,21 @@ import gd
 import asyncio
 import logging
 
-####################################
-
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
-
-##################################
-
-
 intents = discord.Intents.default()
 intents.members = True
 prefix = '$'
-
 client = commands.Bot(command_prefix=prefix, intents=intents)
-
 class User:
     def __init__(self, id, points):
         self.id = id
         self.points = points
-
-
 memberlist = []
 client.remove_command('help')
-
 
 @client.event
 async def on_ready():
@@ -66,12 +55,6 @@ async def on_ready():
                 
       await asyncio.sleep(5)
 
-
-
-
-  
-
-
 @client.event
 async def on_message(message):
     import random
@@ -80,12 +63,10 @@ async def on_message(message):
     if 'amogus' in message.content.lower().replace(" ", "") and message.author != client.user and message.author.id != 482499244658524160:
         await message.channel.send(random.choice(suslist))
         
-
     await client.process_commands(message)
 
 with open("users.json") as fp:
     users = json.load(fp)
-
 
 def save_users():
     with open("users.json", "w+") as fp:
@@ -111,13 +92,10 @@ def get_points(user: discord.User):
         return users[id].get("points", 0)
     return 0
 
-
-
 def get_points_by_id(id):
     if str(id) in users:
         return users[id].get("points", 0)
     return 0
-
 
 @client.command()
 async def dlt(ctx, id : int):
@@ -135,8 +113,7 @@ async def say(ctx, message):
   if ctx.message.author.id == 482499244658524160:
     await ctx.message.delete()
     await ctx.send(message)
-
-       
+  
 @client.command(aliases=['balance'], brief='shows how many points you have')
 async def bal(ctx, member:discord.Member = None):
     list = []
@@ -149,7 +126,6 @@ async def bal(ctx, member:discord.Member = None):
 
     def return_points(obj):
             return obj.points
-
     y = ''
 
     list.sort(key=return_points)
@@ -173,7 +149,6 @@ async def bal(ctx, member:discord.Member = None):
         embed.set_footer(text=f'{int(index) + 1}/{total} globally')
         await ctx.send(embed=embed)
 
-
     else:
         embed = discord.Embed(title="balance", description=f'{member} hasnt got any points registered', color=0x00ff00)
         embed.set_thumbnail(url=ctx.author.avatar_url)
@@ -188,9 +163,6 @@ async def remove(ctx, member:discord.Member, points):
     embed = discord.Embed(title=f"remove {amount} list points", description=f'removed {amount} points from {member}!', color=0x00ff00)
     await ctx.send(embed=embed)
 
-
-
-
 @client.command()
 async def rem(ctx, member:discord.Member, points):
   if ctx.message.author.id == 482499244658524160:
@@ -200,35 +172,24 @@ async def rem(ctx, member:discord.Member, points):
     embed = discord.Embed(title=f"remove {amount} list points", description=f'removed {amount} points from {member}!', color=0x00ff00)
     await ctx.send(embed=embed)
 
-
-
-
-
 @client.command()
 async def php(ctx):
   await ctx.send('https://cdn.discordapp.com/attachments/651480116395900958/829331742796021780/php.gif')
 @client.command(aliases=['lb'], brief='shows top 10 (or top index you provide)')
 async def leaderboard(ctx, L_INDEX = 1):
-
     list = []
-
 
     for user in users:
         x = get_points_by_id(user)
         username = client.get_user(int(user))
         user_obj = User(username, x)
         list.append(user_obj)
-
     PAGES = int((len(list) // 10))
     if L_INDEX > PAGES + 1:
         await ctx.send('list index out of range!')
     else:
-
-
-
         def return_points(obj):
             return obj.points
-
         list.sort(key=return_points)
         list.reverse()
         x = ''
@@ -265,8 +226,6 @@ async def leaderboard(ctx, L_INDEX = 1):
         except IndexError:
           await ctx.send('something went wrong')
 
-
-
 @client.command(brief='add points to a member, requires ban_members')
 @commands.has_permissions(kick_members=True)
 async def add(ctx, member: discord.Member, amount):
@@ -274,27 +233,20 @@ async def add(ctx, member: discord.Member, amount):
     add_points(member, amount)
     n = []
     from discord.utils import get
-
     id = member.id
     id = str(id)
 
     if id not in users:
         pass
-
     else:
-
         points = users[id]["points"]
-
         async def add_role(role_id):
-
             x = get(ctx.guild.roles, id=role_id)
-
             if x in member.roles:
                 pass
             else:
                 await member.add_roles(x)
                 n.append(str(x))
-
         if int(points) >= 10:
             await add_role(816416582796312638)
         if int(points) >= 50:
@@ -311,11 +263,9 @@ async def add(ctx, member: discord.Member, amount):
             await add_role(817518549420867696)
         if int(points) >= 2000:
             await add_role(817518708221149194)
-
         z = ' ,'.join(n)
         if z == '':
             z = "no roles to add!"
-
         list = []
         for user in users:
             x = get_points_by_id(user)
@@ -326,15 +276,11 @@ async def add(ctx, member: discord.Member, amount):
 
         def return_points(obj):
             return obj.points
-
         y = ''
-
         list.sort(key=return_points)
         list.reverse()
-
         if member == None:
             member = ctx.message.author
-
         ID = str(member.id)
         total = len(list)
         if ID in users:
@@ -352,10 +298,6 @@ async def add(ctx, member: discord.Member, amount):
             embed.set_footer(text=f'{index + 1}/{total} globally')
             await ctx.send(embed=embed)
     
-
-
-
-
 @client.command(brief='add points to a member, requires ban_members')
 async def ptyx_a(ctx, member:discord.Member, amount):
   if ctx.author.id == 482499244658524160:
@@ -388,23 +330,15 @@ async def update_status(ctx, member: discord.Member = None):
 
     if id not in users:
         await ctx.send(f'{member} user doesnt have any list points!')
-    else:
-        
-          
-
+    else:        
         points = users[id]["points"]
-
         async def add_role(role_id):
-
             x = get(ctx.guild.roles, id=role_id)
             if x in member.roles:
-              pass
-                
+              pass        
             else:
-
                 await member.add_roles(x)
                 n.append(str(x))
-
 
         if int(points) >= 10:
             await add_role(816416582796312638)
@@ -426,8 +360,7 @@ async def update_status(ctx, member: discord.Member = None):
         y = ' ,'.join(n)
         if y == '':
             y = "no roles to add!"
-          
-
+         
         embed = discord.Embed(title="Autorole", description=f"roles based on list points", color=0x00ff00)
         embed.add_field(name='roles added:', value=y, inline=False)
         await ctx.send(embed=embed)
@@ -437,7 +370,6 @@ async def help(ctx):
     def is_empty(desc):
         if str(desc) == '':
             return True
-
 
     embed = discord.Embed(title="Shitty Spam Challenge List Discord", url="https://discord.gg/2wFSQUTTCF",
                           description="List of avaible commands:", color=0x5cffb8)
@@ -461,19 +393,13 @@ async def msg(ctx, message):
   if ctx.author.id == 482499244658524160:
     channel = client.get_channel(816168948226719747)
     await channel.send(message)
-    
-
-
-
 
 for filename in os.listdir('./Cogs'):
   if filename.endswith('py'):
     newfile, ext = filename.split('.')
     client.load_extension('Cogs.' + newfile)
     print(f'loaded extension {newfile}')
-    
-
-       
+        
 threading.Thread(target=flask_server.run).start()
 client.run(os.getenv('token'))
 
